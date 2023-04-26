@@ -65,7 +65,7 @@ def interface_main(src_code: str) -> str:
 app = flask.Flask(__name__)
 
 
-@app.route("/python", methods=["POST"])
+@app.route("/getCFG", methods=["POST"])
 def index():
     code = flask.request.get_json()["code"]
     return build_once(code)

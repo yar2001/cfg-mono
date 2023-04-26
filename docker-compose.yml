@@ -4,7 +4,7 @@ services:
       context: ./c
     restart: always
     ports:
-      - 8000:8000
+      - 8000:5000
   python:
     build:
       context: ./python
@@ -20,4 +20,4 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./nginx:/etc/nginx
     ports:
-      - 80:80
+      - 9000:9000
