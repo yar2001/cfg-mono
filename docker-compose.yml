@@ -5,6 +5,8 @@ services:
     restart: always
     ports:
       - 8000:5000
+    environment:
+      - library_file=/usr/lib/llvm-11/lib/libclang.so.1
   python:
     build:
       context: ./python
