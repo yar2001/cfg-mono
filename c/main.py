@@ -85,13 +85,19 @@ def generateAST(code: str):
 def getCFG(code: str):
     root_cursor = generateAST(code)
     disposeCFGController = DisposeCFGController()
-    test = disposeCFGController.startGenerateCFG(root_cursor)
-    answer = getMermaid(test)
-    print(answer)
+    cfgData = disposeCFGController.startGenerateCFG(root_cursor)
+    mermaid = getMermaid(cfgData); # 获取mermaid
+
+    return {
+        "mermaid": mermaid,
+        "CSN":{
+            "cfg_dependency": cfgData.to_dict()
+        }
+    }
     # cfg = {};
     # cfg["nodes"] = test.nodes;
     # cfg["edges"] = test.edges;
-    return test.to_dict()
+    # return test.to_dict();
 
 
 from flask import Flask, request, jsonify
@@ -102,7 +108,7 @@ app = Flask(__name__)
 
 @app.route("/getCFG", methods=["POST"])
 def getCFGFromCode():
-    code = request.json.get("code")
+    code = request.json.get("code");
     print(code)
     answer = getCFG(code)
     return jsonify(answer)
@@ -114,4 +120,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=3000)
+    app.run(debug=False, host="0.0.0.0", port=8000)
