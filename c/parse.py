@@ -8,7 +8,7 @@ import copy
 from nameClass import *
 import re
 
-file_name = "switch.cpp"
+file_name = "code.cpp"
 # -*- coding: utf-8 -*-
 """解析CFG节点，生成CFG的相关函数"""
 def getStatements(tu_cursor: clang.cindex.Cursor):
