@@ -23,3 +23,9 @@ services:
       - ./nginx:/etc/nginx
     ports:
       - 9000:9000
+  javascript:
+    build:
+      context: ./javascript
+    restart: always
+    ports:
+      - 3000:3000

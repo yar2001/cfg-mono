@@ -129,51 +129,53 @@ export function HomePage() {
                 />
               )}
             </div>
-            <button
-              className="p-1 transition-colors rounded-md bg-gray-50 active:bg-gray-100"
-              onClick={() => {
-                const element = document.createElement('a');
-                const file = new Blob([JSON.stringify(CSN)], { type: 'text/plain' });
-                element.href = URL.createObjectURL(file);
-                element.download = 'CSN.json';
-                element.style.display = 'none';
-                document.body.appendChild(element);
-                element.click();
-                document.body.removeChild(element);
-              }}
-            >
-              <IoDownload className="w-5 h-5 text-gray-500" />
-            </button>
-            {lang === 'javascript' && (
+            <div className="flex gap-2 items-center">
               <button
-                className="p-1 transition-colors rounded-md bg-blue-50 active:bg-blue-100"
+                className="p-1 transition-colors rounded-md bg-gray-50 active:bg-gray-100"
                 onClick={() => {
-                  console.log(generateOutput(code));
-
-                  const GlobalEnv = {
-                    Math,
-                    Function,
-                    Array,
-                    Symbol,
-                    Object,
-                    Date,
-                  };
-                  setConsoleText((c) => c + '\n');
-                  evalInSandbox(code, {
-                    ...GlobalEnv,
-                    console: {
-                      log(...args: any[]) {
-                        const consoleText = args.map((arg) => variableToConsoleText(arg)).join(' ');
-                        setConsoleText((c) => c + consoleText + '\n');
-                        console.log(...args);
-                      },
-                    },
-                  });
+                  const element = document.createElement('a');
+                  const file = new Blob([JSON.stringify(CSN)], { type: 'text/plain' });
+                  element.href = URL.createObjectURL(file);
+                  element.download = 'CSN.json';
+                  element.style.display = 'none';
+                  document.body.appendChild(element);
+                  element.click();
+                  document.body.removeChild(element);
                 }}
               >
-                <IoPlay className="w-5 h-5 text-blue-500" />
+                <IoDownload className="w-5 h-5 text-gray-500" />
               </button>
-            )}
+              {lang === 'javascript' && (
+                <button
+                  className="p-1 transition-colors rounded-md bg-blue-50 active:bg-blue-100"
+                  onClick={() => {
+                    console.log(generateOutput(code));
+
+                    const GlobalEnv = {
+                      Math,
+                      Function,
+                      Array,
+                      Symbol,
+                      Object,
+                      Date,
+                    };
+                    setConsoleText((c) => c + '\n');
+                    evalInSandbox(code, {
+                      ...GlobalEnv,
+                      console: {
+                        log(...args: any[]) {
+                          const consoleText = args.map((arg) => variableToConsoleText(arg)).join(' ');
+                          setConsoleText((c) => c + consoleText + '\n');
+                          console.log(...args);
+                        },
+                      },
+                    });
+                  }}
+                >
+                  <IoPlay className="w-5 h-5 text-blue-500" />
+                </button>
+              )}
+            </div>
           </div>
           <CodeEditor
             language={lang === 'CFGData' ? 'json' : lang}
