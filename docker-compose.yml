@@ -1,0 +1,23 @@
+services:
+  c:
+    build:
+      context: ./c
+    restart: always
+    ports:
+      - 8080:8080
+  python:
+    build:
+      context: ./python
+    restart: always
+    ports:
+      - 5000:5000
+  nginx:
+    build:
+      context: ./nginx
+    restart: always
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./nginx:/etc/nginx
+    ports:
+      - 80:80
