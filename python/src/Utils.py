@@ -68,7 +68,6 @@ class DataContainer:
                     ret += f'{self.node_instance[id(child)]}{str(child)}'
         return ret
 
-
     def export_ddg_mermaid(self) -> str:
         self.id_counter: int = 1
         self.node_instance.clear()
@@ -186,7 +185,58 @@ class DataContainer:
 
 
     def _pack_ddg(self):
-        pass
+
+        def create_ddg_data_node():
+            pass
+
+        def create_ddg_edge_node():
+            pass
+        # main
+        # visited_table: set = set()
+        # # id(cfg_node) --> id_counter
+        # ddg_node_to_id_mapping: dict = {}
+        # ddg_data_nodes: list = []
+        # ddg_edge_nodes: list = []
+        # id_counter: int = 0
+        # for single_ddg in self.ddg_data:
+        #     for each_ddg in single_ddg:
+        #         if id(each_ddg) not in visited_table:
+        #             ddg_data_nodes.append(create_cfg_data_node(each_cfg, id_counter))
+        #             node_id: int = id_counter
+        #             ddg_node_to_id_mapping[id(each_cfg)] = id_counter
+        #             id_counter = id_counter + 1
+        #             visited_table.add(id(each_cfg))
+        #         else:
+        #             # find id
+        #             node_id: int = cfg_node_to_id_mapping[id(each_cfg)]
+        #
+        #         for child in each_cfg.children:
+        #             if id(child) not in visited_table:
+        #                 cfg_data_nodes.append(create_cfg_data_node(child, id_counter))
+        #                 cfg_node_to_id_mapping[id(child)] = id_counter
+        #                 cfg_edge_nodes.append(create_cfg_edge_node(node_id, id_counter, child))
+        #                 id_counter = id_counter + 1
+        #                 visited_table.add(id(child))
+        #             else:
+        #                 child_id: int = cfg_node_to_id_mapping[id(child)]
+        #             cfg_edge_nodes.append(create_cfg_edge_node(node_id, child_id, child))
+        #
+        # id_counter: int = 0
+        # for each in cfg_edge_nodes:
+        #     each.id = id_counter
+        #     id_counter = id_counter + 1
+        #
+        # # build data dict
+        # nodes: list = []
+        # edges: list = []
+        # for each_cfg in cfg_data_nodes:
+        #     nodes.append(str(each_cfg))
+        #
+        # for each_edge in cfg_edge_nodes:
+        #     edges.append(str(each_edge))
+        #
+        # self.data['nodes'] = nodes
+        # self.data['edges'] = edges
 
     def __str__(self) -> str:
         """
@@ -204,6 +254,10 @@ class DataContainer:
             target_info[key] = value
         # pack target data
         self._pack()
+
+        # pack mermaid code
+        target_info['mermaid'] = self.export_cfg_mermaid()
+        target_info['ddg_mermaid'] = self.export_ddg_mermaid()
 
         # data is prerogative
         for key, value in self.data.items():
