@@ -1,1 +1,5 @@
-This repo is a monorepo that is a CFG generation platform for languages `c` `javascript` `python` and `ruby` and is the undergraduate graduation project of @GadiaEX @Itsukal and @yar2001.
+# CFG Mono
+
+A CFG generation platform for C, JavaScript, Python and Ruby is contained in this monorepo.
+
+This is the undergraduate graduation project of @GadiaEX, @Itsukal and @yar2001.
