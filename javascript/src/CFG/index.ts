@@ -448,7 +448,6 @@ export function generateCFG(astNode: Node | undefined): {
     lastNodes.push({ _id: nodeId, type: LastNodeType.Normal });
   }
 
-  nextNodeId$.complete();
   return { nodes, edges, lastNodes: lastNodes };
 
   function solveLoop(

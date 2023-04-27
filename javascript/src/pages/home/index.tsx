@@ -129,28 +129,63 @@ export function HomePage() {
                 />
               )}
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2">
               <button
-                className="p-1 transition-colors rounded-md bg-gray-50 active:bg-gray-100"
+                className="flex items-center gap-2 px-3 py-1 transition-colors rounded-md bg-gray-50 active:bg-gray-100"
                 onClick={() => {
-                  const element = document.createElement('a');
-                  const file = new Blob([JSON.stringify(CSN)], { type: 'text/plain' });
-                  element.href = URL.createObjectURL(file);
-                  element.download = 'CSN.json';
-                  element.style.display = 'none';
-                  document.body.appendChild(element);
-                  element.click();
-                  document.body.removeChild(element);
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = '.jsonl,.json';
+                  input.onchange = () => {
+                    const file = input.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = async () => {
+                      const text = reader.result as string;
+                      const json = text
+                        .split('\n')
+                        .map((line) => {
+                          try {
+                            return JSON.parse(line);
+                          } catch (e) {
+                            console.log(line);
+                            console.error(e);
+                            return null;
+                          }
+                        })
+                        .filter((x) => x !== null) as { code: string; text: string }[];
+                      let output = [] as { CSN: any }[];
+                      if (lang === 'javascript') {
+                        output = json.map(({ code }) => ({ CSN: generateOutput(code) }));
+                      } else {
+                        const { data } = await axios.post(`http://localhost:9000/batch/${lang}`, { codes: json });
+                        output = data;
+                      }
+
+                      const blob = new Blob(
+                        output.map((x) => JSON.stringify(x) + '\n'),
+                        { type: 'application/json' }
+                      );
+
+                      const a = document.createElement('a');
+                      a.href = URL.createObjectURL(blob);
+                      a.download = lang + '-output.jsonl';
+                      a.click();
+                    };
+                    reader.readAsText(file);
+                  };
+                  input.click();
                 }}
               >
                 <IoDownload className="w-5 h-5 text-gray-500" />
+                转换数据
               </button>
+
               {lang === 'javascript' && (
                 <button
                   className="p-1 transition-colors rounded-md bg-blue-50 active:bg-blue-100"
                   onClick={() => {
                     console.log(generateOutput(code));
-
                     const GlobalEnv = {
                       Math,
                       Function,
