@@ -3,16 +3,12 @@ services:
     build:
       context: ./c
     restart: always
-    ports:
-      - 8000:5000
     environment:
       - library_file=/usr/lib/llvm-11/lib/libclang.so.1
   python:
     build:
       context: ./python
     restart: always
-    ports:
-      - 5000:5000
   nginx:
     build:
       context: ./nginx
