@@ -9,14 +9,13 @@ services:
     build:
       context: ./python
     restart: always
-  nginx:
+  proxy:
     build:
-      context: ./nginx
+      context: ./proxy
     restart: always
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./nginx:/etc/nginx
     ports:
       - 9000:9000
   javascript:
