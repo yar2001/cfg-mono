@@ -17,6 +17,9 @@ class CFGNode:
         if func not in self.function_calls:
             self.function_calls.append(func)
 
+    def clear_children(self):
+        self.children.clear()
+
     def _extract_vars(self):
         try:
             stmt = ast.parse(self.content).body[0]
@@ -112,6 +115,23 @@ class EndIfNode(EndNode):
 
     def __init__(self, line, content=None):
         content = 'end-if'
+        super().__init__(line, content)
+
+class JumpNode(CFGNode):
+
+    def __init__(self, line, content=None):
+        super().__init__(line, content)
+
+class ContinueNode(JumpNode):
+
+    def __init__(self, line, content=None):
+        content = 'continue'
+        super().__init__(line, content)
+
+class BreakNode(JumpNode):
+
+    def __init__(self, line, content=None):
+        content = 'break'
         super().__init__(line, content)
 
 class FunctionNode(CFGNode):

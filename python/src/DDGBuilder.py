@@ -46,6 +46,9 @@ class DDGVisitor:
                 self.dfs_search(each)
 
     def dfs_search(self, node: src.Model.CFGNode.CFGNode):
+        if issubclass(type(node), src.Model.CFGNode.JumpNode):
+            return
+
         self.visited_table.add(id(node))
         var_backup: list = []
         ddg_node_id: int = self.cfg_node_id_mapping[id(node)]

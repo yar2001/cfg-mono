@@ -55,7 +55,7 @@ class DataContainer:
         ret = ''
         for each in nodes:
             if ignore_end and isinstance(each, src.Model.DDGNode.DDGNode):
-                if self.is_end_node(each, ddg_index):
+                if self.skip_the_node(each, ddg_index):
                     continue
             if id(each) not in self.node_instance:
                 self.node_instance[id(each)] = self.id_counter
@@ -79,14 +79,14 @@ class DataContainer:
         ret += self._convert_nodes_to_str(self.ddg_data[0].ddg_nodes, True, 0)
         # edge
         for each in self.ddg_data[0].ddg_nodes:
-            if self.is_end_node(each):
+            if self.skip_the_node(each):
                 continue
             node_id = id(each)
             for each_parent in each.parent:
-                if self.is_end_node(each_parent):
+                if self.skip_the_node(each_parent):
                     continue
                 parent_id = id(each_parent)
-                ret += f'{self.node_instance[parent_id]}-->{self.node_instance[node_id]}\n'
+                ret += f'{self.node_instance[parent_id]}-.->{self.node_instance[node_id]}\n'
         ret += 'end\n'
 
         # function related
@@ -107,22 +107,23 @@ class DataContainer:
                 node_id = id(each)
                 for parent in each.parent:
                     parent_id = id(parent)
-                    ret += f'{self.node_instance[parent_id]}-->{self.node_instance[node_id]}\n'
+                    ret += f'{self.node_instance[parent_id]}-.->{self.node_instance[node_id]}\n'
             ret += 'end\n'
 
 
         return ret
 
-    def is_end_node(self, ddg_node: src.Model.DDGNode.DDGNode, index: int=0) -> bool:
+    def skip_the_node(self, ddg_node: src.Model.DDGNode.DDGNode, index: int=0) -> bool:
         cfg_node = ddg_node.cfg_prototype
 
-        if issubclass(type(cfg_node), src.Model.CFGNode.EndNode):
+        if issubclass(type(cfg_node), src.Model.CFGNode.EndNode) or issubclass(type(cfg_node), src.Model.CFGNode.JumpNode):
             return True
         else:
             return False
 
     def _pack(self):
         self._pack_cfg()
+        self._pack_ddg()
 
     def _pack_cfg(self):
 
@@ -130,7 +131,7 @@ class DataContainer:
             node = src.Model.AdapterNode.CFGDataNode(cfg_node, id)
             return node
 
-        def create_cfg_edge_node(source: int, target: int, ddg_node: src.Model.CFGNode.CFGNode)\
+        def create_cfg_edge_node(source: int, target: int, cfg_node: src.Model.CFGNode.CFGNode)\
                 -> src.Model.AdapterNode.CFGDataEdge:
             node = src.Model.AdapterNode.CFGDataEdge(0, source, target)
             return node
@@ -186,57 +187,60 @@ class DataContainer:
 
     def _pack_ddg(self):
 
-        def create_ddg_data_node():
-            pass
+        def create_ddg_data_node(ddg_node: src.Model.DDGNode.DDGNode, id: int) -> src.Model.AdapterNode.DDGDataNode:
+            node = src.Model.AdapterNode.DDGDataNode(ddg_node, id)
+            return node
 
-        def create_ddg_edge_node():
-            pass
+        def create_ddg_edge_node(source: int, target: int, ddg_node:src.Model.DDGNode.DDGNode):
+            node = src.Model.AdapterNode.DDGDataEdge(0, source, target)
+            return node
+
         # main
-        # visited_table: set = set()
-        # # id(cfg_node) --> id_counter
-        # ddg_node_to_id_mapping: dict = {}
-        # ddg_data_nodes: list = []
-        # ddg_edge_nodes: list = []
-        # id_counter: int = 0
-        # for single_ddg in self.ddg_data:
-        #     for each_ddg in single_ddg:
-        #         if id(each_ddg) not in visited_table:
-        #             ddg_data_nodes.append(create_cfg_data_node(each_cfg, id_counter))
-        #             node_id: int = id_counter
-        #             ddg_node_to_id_mapping[id(each_cfg)] = id_counter
-        #             id_counter = id_counter + 1
-        #             visited_table.add(id(each_cfg))
-        #         else:
-        #             # find id
-        #             node_id: int = cfg_node_to_id_mapping[id(each_cfg)]
-        #
-        #         for child in each_cfg.children:
-        #             if id(child) not in visited_table:
-        #                 cfg_data_nodes.append(create_cfg_data_node(child, id_counter))
-        #                 cfg_node_to_id_mapping[id(child)] = id_counter
-        #                 cfg_edge_nodes.append(create_cfg_edge_node(node_id, id_counter, child))
-        #                 id_counter = id_counter + 1
-        #                 visited_table.add(id(child))
-        #             else:
-        #                 child_id: int = cfg_node_to_id_mapping[id(child)]
-        #             cfg_edge_nodes.append(create_cfg_edge_node(node_id, child_id, child))
-        #
-        # id_counter: int = 0
-        # for each in cfg_edge_nodes:
-        #     each.id = id_counter
-        #     id_counter = id_counter + 1
-        #
-        # # build data dict
-        # nodes: list = []
-        # edges: list = []
-        # for each_cfg in cfg_data_nodes:
-        #     nodes.append(str(each_cfg))
-        #
-        # for each_edge in cfg_edge_nodes:
-        #     edges.append(str(each_edge))
-        #
-        # self.data['nodes'] = nodes
-        # self.data['edges'] = edges
+        visited_table: set = set()
+        # id(cfg_node) --> id_counter
+        ddg_node_to_id_mapping: dict = {}
+        ddg_data_nodes: list = []
+        ddg_edge_nodes: list = []
+        id_counter: int = 0
+        for single_visitor in self.ddg_data:
+            for each_ddg in single_visitor.ddg_nodes:
+                if id(each_ddg) not in visited_table:
+                    ddg_data_nodes.append(create_ddg_data_node(each_ddg, id_counter))
+                    node_id: int = id_counter
+                    ddg_node_to_id_mapping[id(each_ddg)] = id_counter
+                    id_counter = id_counter + 1
+                    visited_table.add(id(each_ddg))
+                else:
+                    # find id
+                    node_id: int = ddg_node_to_id_mapping[id(each_ddg)]
+
+                for parent in each_ddg.parent:
+                    if id(parent) not in visited_table:
+                        ddg_data_nodes.append(create_ddg_data_node(parent, id_counter))
+                        ddg_node_to_id_mapping[id(parent)] = id_counter
+                        ddg_edge_nodes.append(create_ddg_edge_node(node_id, id_counter, parent))
+                        id_counter = id_counter + 1
+                        visited_table.add(id(parent))
+                    else:
+                        parent_id: int = ddg_node_to_id_mapping[id(parent)]
+                        ddg_edge_nodes.append(create_ddg_edge_node(node_id, parent_id, parent))
+
+        id_counter: int = 0
+        for each in ddg_edge_nodes:
+            each.id = id_counter
+            id_counter = id_counter + 1
+
+        # build data dict
+        nodes: list = []
+        edges: list = []
+        for each_ddg in ddg_data_nodes:
+            nodes.append(str(each_ddg))
+
+        for each_edge in ddg_edge_nodes:
+            edges.append(str(each_edge))
+
+        self.data['ddg_nodes'] = nodes
+        self.data['ddg_edges'] = edges
 
     def __str__(self) -> str:
         """
@@ -250,8 +254,9 @@ class DataContainer:
             'language': 'python',
         }
         target_info: dict = {}
+        target_info['CSN'] = {}
         for key, value in base_info.items():
-            target_info[key] = value
+            target_info['CSN'][key] = value
         # pack target data
         self._pack()
 
@@ -261,6 +266,6 @@ class DataContainer:
 
         # data is prerogative
         for key, value in self.data.items():
-            target_info[key] = value
+            target_info['CSN'][key] = value
 
         return json.dumps(target_info)
