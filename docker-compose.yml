@@ -2,17 +2,14 @@ services:
   c:
     build:
       context: ./c
-    restart: always
     environment:
       - library_file=/usr/lib/llvm-11/lib/libclang.so.1
   python:
     build:
       context: ./python
-    restart: always
   proxy:
     build:
       context: ./proxy
-    restart: always
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
@@ -21,6 +18,5 @@ services:
   javascript:
     build:
       context: ./javascript
-    restart: always
     ports:
       - 3000:3000
