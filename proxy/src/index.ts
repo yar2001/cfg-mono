@@ -10,7 +10,7 @@ const app = express();
 
 app.use(cors());
 
-app.use('/batch/:lang', express.json({ limit: '50mb' }), async (req, res) => {
+app.use('/batch/:lang', express.json({ limit: '100mb' }), async (req, res) => {
   const input = req.body as { codes: { text: string; name: string }[] };
   const output = [] as { CSN: string }[];
   for (const code of input.codes) {
