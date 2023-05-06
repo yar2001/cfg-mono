@@ -25,6 +25,19 @@ class CFGVisitor(ast.NodeVisitor):
         for item in node.body:
             self.visit(item)
 
+    def visit_AugAssign(self, node: ast.AugAssign):
+        content = astor.to_source(node).strip()
+        temp = src.Model.CFGNode.CFGNode(node.lineno + self.base_line, content)
+        self.add_link_to_previous(temp)
+        self.cfg_nodes.append(temp)
+
+    def visit_Raise(self, node: ast.Raise):
+        content = astor.to_source(node).strip()
+        temp = src.Model.CFGNode.CFGNode(node.lineno + self.base_line, content)
+        if len(self.cfg_nodes) > 1:
+            self.cfg_nodes[-1].add_child(temp)
+        self.cfg_nodes.append(temp)
+
     def visit_FunctionDef(self, node):
         cfg_visitor = CFGVisitor('')
 
@@ -91,30 +104,26 @@ class CFGVisitor(ast.NodeVisitor):
     def visit_Return(self, node):
         content = astor.to_source(node).strip()
         temp = src.Model.CFGNode.ReturnNode(node.lineno + self.base_line, content)
-        if len(self.cfg_nodes) > 1:
-            self.cfg_nodes[-1].add_child(temp)
+        self.add_link_to_previous(temp)
         self.cfg_exit_nodes.append(temp)
 
     def visit_Assign(self, node):
         content = astor.to_source(node).strip()
         temp = src.Model.CFGNode.CFGNode(node.lineno + self.base_line, content)
-        if len(self.cfg_nodes) > 1:
-            self.cfg_nodes[-1].add_child(temp)
+        self.add_link_to_previous(temp)
         self.cfg_nodes.append(temp)
 
     def visit_Expr(self, node):
         content = astor.to_source(node).strip()
         temp = src.Model.CFGNode.CFGNode(node.lineno + self.base_line, content)
-        if len(self.cfg_nodes) > 1:
-            self.cfg_nodes[-1].add_child(temp)
+        self.add_link_to_previous(temp)
         self.cfg_nodes.append(temp)
 
     def visit_If(self, node):
         content = astor.to_source(node.test).strip()
         if_stmt = src.Model.CFGNode.IfNode(node.lineno + self.base_line, content.split('\n')[0])
         node_collector: list = []
-        if len(self.cfg_nodes) > 0:
-            self.cfg_nodes[-1].add_child(if_stmt)
+        self.add_link_to_previous(if_stmt)
         end_if = src.Model.CFGNode.EndIfNode(node.lineno + self.base_line)
         node_collector.append(if_stmt)
 
@@ -185,8 +194,7 @@ class CFGVisitor(ast.NodeVisitor):
         content = astor.to_source(node.test).strip()
         if_stmt = src.Model.CFGNode.IfNode(node.lineno + self.base_line, content.split('\n')[0])
         node_collector: list = []
-        if len(self.cfg_nodes) > 0:
-            self.cfg_nodes[-1].add_child(if_stmt)
+        self.add_link_to_previous(if_stmt)
         node_collector.append(if_stmt)
 
         if_body = node.body
@@ -266,8 +274,7 @@ class CFGVisitor(ast.NodeVisitor):
         end_while = src.Model.CFGNode.EndWhileNode(node.lineno + self.base_line)
         cfg_node = src.Model.CFGNode.WhileNode(node.lineno + self.base_line, content.split('\n')[0])
         cfg_node.add_child(end_while)
-        if len(self.cfg_nodes) > 0:
-            self.cfg_nodes[-1].add_child(cfg_node)
+        self.add_link_to_previous(cfg_node)
 
         if hasattr(node, 'body'):
             current = []
@@ -330,8 +337,7 @@ class CFGVisitor(ast.NodeVisitor):
 
         end_for = src.Model.CFGNode.EndForNode(node.lineno + self.base_line)
         cfg_node.add_child(end_for)
-        if len(self.cfg_nodes) > 0:
-            self.cfg_nodes[-1].add_child(cfg_node)
+        self.add_link_to_previous(cfg_node)
 
         if hasattr(node, 'body'):
             current = []
@@ -499,4 +505,20 @@ class CFGVisitor(ast.NodeVisitor):
                 child_id = id(child)
                 ret += f'{node_instance[node_id]}-->{node_instance[child_id]}\n'
 
+        return ret
+
+    def add_link_to_previous(self, node: src.Model.CFGNode.CFGNode):
+        parents = self.__get_last_tail()
+        for each_parent in parents:
+            each_parent.add_child(node)
+
+    def __get_last_tail(self) -> list:
+        ret = []
+        for each in self.cfg_nodes:
+
+            if isinstance(type(each), src.Model.CFGNode.ReturnNode):
+                continue
+
+            if len(each.children) == 0:
+                ret.append(each)
         return ret

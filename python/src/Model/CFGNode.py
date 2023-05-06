@@ -30,6 +30,11 @@ class CFGNode:
             self.defined_vars = set(t.id for t in stmt.targets if isinstance(t, ast.Name))
             self.used_vars = set(t.id for t in ast.walk(stmt.value) if isinstance(t, ast.Name))
 
+        elif isinstance(stmt, ast.AugAssign):
+            if isinstance(stmt.target, ast.Name):
+                self.defined_vars = stmt.target.id
+            self.used_vars = set(t.id for t in ast.walk(stmt.value) if isinstance(t, ast.Name))
+
         elif isinstance(stmt, ast.Expr) or isinstance(stmt, ast.If) or isinstance(stmt, ast.While):
             if isinstance(stmt, ast.BinOp):
                 self.used_vars = set(t.id for t in ast.walk(stmt.left) if isinstance(t, ast.Name))

@@ -13,6 +13,7 @@ class DataContainer:
         self.export_function: bool = export_function
         self.node_instance = {}
         self.cfg_data = cfg_builder
+        self.error_info = {}
         if ddgs is not None:
             self.ddg_data = ddgs
 
@@ -203,6 +204,12 @@ class DataContainer:
         ddg_edge_nodes: list = []
         id_counter: int = 0
         for single_visitor in self.ddg_data:
+            # timeout
+            if single_visitor.timeout:
+                self.error_info['title'] = 'building ddg timeout'
+                self.error_info['content'] = 'too complex control flow graph'
+                continue
+
             for each_ddg in single_visitor.ddg_nodes:
                 if id(each_ddg) not in visited_table:
                     ddg_data_nodes.append(create_ddg_data_node(each_ddg, id_counter))
@@ -267,5 +274,7 @@ class DataContainer:
         # data is prerogative
         for key, value in self.data.items():
             target_info['CSN'][key] = value
+
+        target_info['error'] = self.error_info
 
         return json.dumps(target_info)
