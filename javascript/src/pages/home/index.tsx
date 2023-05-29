@@ -13,6 +13,8 @@ import { ErrorBoundary } from '../../utils/errorBoundary';
 import { Selector } from '../../Selector';
 import axios from 'axios';
 
+const urlPrefix = process.env.REACT_APP_URL_PREFIX!;
+
 export function HomePage() {
   const [code, setCode] = useState(defaultJavaScript['foo']);
 
@@ -26,7 +28,6 @@ export function HomePage() {
   const [lang, setLang] = useState('javascript');
 
   const [mermaidCode, setMermaidCode] = useState('');
-  const [CSN, setCSN] = useState<Object>({});
 
   useEffect(() => {
     function drawCFG({ nodes, edges, lastNodes }: CFGData): string {
@@ -75,9 +76,8 @@ export function HomePage() {
         setMermaidCode(code);
         return;
       default:
-        axios.post(`http://localhost:9000/${lang}/getCFG`, { code }).then(({ data }) => {
+        axios.post(`${urlPrefix}/${lang}/getCFG`, { code }).then(({ data }) => {
           setMermaidCode(data.mermaid);
-          setCSN(data.CSN);
         });
     }
   }, [code, lang]);
@@ -131,7 +131,7 @@ export function HomePage() {
             </div>
             <div className="flex items-center gap-2">
               <button
-                className="flex items-center gap-2 px-3 py-1 transition-colors rounded-md bg-gray-50 active:bg-gray-100"
+                className="flex items-center gap-2 px-3 py-1 transition-colors rounded-md shrink-0 bg-gray-50 active:bg-gray-100"
                 onClick={() => {
                   const input = document.createElement('input');
                   input.type = 'file';
@@ -158,7 +158,9 @@ export function HomePage() {
                       if (lang === 'javascript') {
                         output = json.map(({ code }) => ({ CSN: generateOutput(code) }));
                       } else {
-                        const { data } = await axios.post(`http://localhost:9000/batch/${lang}`, { codes: json });
+                        const { data } = await axios.post(`${urlPrefix}/batch/${lang}`, {
+                          codes: json,
+                        });
                         output = data;
                       }
 
@@ -178,7 +180,7 @@ export function HomePage() {
                 }}
               >
                 <IoDownload className="w-5 h-5 text-gray-500" />
-                转换数据
+                Batch
               </button>
 
               {lang === 'javascript' && (
