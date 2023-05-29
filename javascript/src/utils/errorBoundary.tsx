@@ -31,7 +31,7 @@ export class ErrorBoundary extends React.Component<
       return (
         <div className="px-5 py-3 space-y-2">
           <div className="px-3 py-1 text-red-600 bg-red-100 rounded-md">
-            <div className="font-bold">错误</div>
+            <div className="font-bold">Error</div>
             <pre className="break-all whitespace-pre-wrap">{this.state.error.stack}</pre>
           </div>
           <button
@@ -40,7 +40,7 @@ export class ErrorBoundary extends React.Component<
               this.setState({ error: undefined });
             }}
           >
-            重试
+            Retry
           </button>
         </div>
       );

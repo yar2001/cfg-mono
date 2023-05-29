@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
+import { useCallback, useEffect, useState } from 'react';
 import { IoDownload, IoPlay } from 'react-icons/io5';
 import { Subject } from 'rxjs';
-import { createSourceFile, ScriptTarget, ScriptKind } from 'typescript';
+import { ScriptKind, ScriptTarget, createSourceFile } from 'typescript';
 import { CFGData, generateCFG, isCFGBlock } from '../../CFG';
 import CodeEditor from '../../Editor';
 import Mermaid from '../../Mermaid';
-import { generateOutput } from '../../output';
 import { evalInSandbox, variableToConsoleText } from '../../Sandbox';
-import { defaultC, defaultCFGData, defaultJavaScript, defaultMermaid } from '../../template';
-import { TemplateSelector } from '../../TemplateSelector';
-import { ErrorBoundary } from '../../utils/errorBoundary';
 import { Selector } from '../../Selector';
-import axios from 'axios';
+import { TemplateSelector } from '../../TemplateSelector';
+import { generateOutput } from '../../output';
+import { defaultC, defaultCFGData, defaultJavaScript, defaultMermaid } from '../../template';
+import { ErrorBoundary } from '../../utils/errorBoundary';
 
 const urlPrefix = process.env.REACT_APP_URL_PREFIX!;
 
